@@ -4,10 +4,12 @@ import com.capstone.bgJobs.model.UpdateEvent;
 import com.capstone.bgJobs.producer.AcknowledgementProducer;
 import com.capstone.bgJobs.repository.TenantRepository;
 import com.capstone.bgJobs.dto.UpdateAcknowledgement;
-import com.capstone.bgJobs.model.AcknowledgementEvent;
+import com.capstone.bgJobs.model.AcknowledgementPayload;
+import com.capstone.bgJobs.model.AcknowledgementStatus;
 import com.capstone.bgJobs.model.Status;
 import com.capstone.bgJobs.model.Tenant;
 import com.capstone.bgJobs.utils.BgJobsUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -69,16 +71,16 @@ public class UpdateAlertService {
                 Thread.currentThread().interrupt();
             }
             
-            sendAcknowledgement(jobId);
+            sendAcknowledgement(jobId, AcknowledgementStatus.SUCCESS);
         } catch (Exception e) {
+            sendAcknowledgement(jobId, AcknowledgementStatus.FAILURE);
             LOGGER.error("Error handling update event: {}", e.getMessage(), e);
         }
     }
 
-    private void sendAcknowledgement(String jobId) {
-        AcknowledgementEvent ackEvent = new AcknowledgementEvent(jobId);
-        // Here, a null eventId will generate a new UUID inside the PullAcknowledgement constructor.
-        // The job id in the acknowledgement is the event id (job id) we received.
+    private void sendAcknowledgement(String jobId, AcknowledgementStatus status) {
+        AcknowledgementPayload ackEvent = new AcknowledgementPayload(jobId);
+        ackEvent.setStatus(status);
         UpdateAcknowledgement ack = new UpdateAcknowledgement(UUID.randomUUID().toString(), ackEvent);
         acknowledgementProducer.sendAcknowledgement(ack);
         LOGGER.info("Sent acknowledgement for jobId {}: {}", jobId, ack);

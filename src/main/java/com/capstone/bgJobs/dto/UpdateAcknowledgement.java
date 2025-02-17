@@ -3,16 +3,16 @@ package com.capstone.bgJobs.dto;
 import java.util.UUID;
 
 import com.capstone.bgJobs.model.Acknowledgement;
-import com.capstone.bgJobs.model.AcknowledgementEvent;
+import com.capstone.bgJobs.model.AcknowledgementPayload;
 
-public class UpdateAcknowledgement implements Acknowledgement<AcknowledgementEvent> {
+public class UpdateAcknowledgement implements Acknowledgement<AcknowledgementPayload> {
     
     private String acknowledgementId;
-    private AcknowledgementEvent payload;
+    private AcknowledgementPayload payload;
 
     public UpdateAcknowledgement() {}   
 
-    public UpdateAcknowledgement(String acknowledgementId, AcknowledgementEvent payload) {
+    public UpdateAcknowledgement(String acknowledgementId, AcknowledgementPayload payload) {
         this.acknowledgementId = (acknowledgementId == null || acknowledgementId.isEmpty()) ? UUID.randomUUID().toString() : acknowledgementId;
         this.payload = payload;
     }
@@ -21,7 +21,7 @@ public class UpdateAcknowledgement implements Acknowledgement<AcknowledgementEve
         this.acknowledgementId = acknowledgementId;
     }
 
-    public void setPayload(AcknowledgementEvent payload) {
+    public void setPayload(AcknowledgementPayload payload) {
         this.payload = payload;
     }
 
@@ -31,7 +31,7 @@ public class UpdateAcknowledgement implements Acknowledgement<AcknowledgementEve
     }
 
     @Override
-    public AcknowledgementEvent getPayload() {
+    public AcknowledgementPayload getPayload() {
         return payload;
     }
 }

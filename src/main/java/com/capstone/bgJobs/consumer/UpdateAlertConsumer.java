@@ -30,10 +30,10 @@ public class UpdateAlertConsumer {
     public void consumeUpdateAlertEvent(ConsumerRecord<String, UpdateAlertEvent> record) {
         UpdateAlertEvent wrapper = record.value();
         UpdateEvent event = wrapper.getPayload();
-        String eventId = wrapper.getEventId();
+        String jobId = event.getJobId();
 
         LOGGER.info("Received UpdateAlertEvent => eventId={}, payload={}", wrapper.getEventId(), event);
 
-        updateAlertService.handleUpdateEvent(event, eventId);
+        updateAlertService.handleUpdateEvent(event, jobId);
     }
 }

@@ -7,6 +7,7 @@ public class UpdateEvent {
     private long alertNumber;
     private String newState;
     private String reason;
+    private String jobId;
 
     public UpdateEvent() {}
 
@@ -54,6 +55,13 @@ public class UpdateEvent {
         this.reason = reason;
     }
 
+    public String getJobId() {
+        return jobId;
+    }
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
     @Override
     public String toString() {
         return "UpdateEvent{" +
@@ -62,6 +70,7 @@ public class UpdateEvent {
                 ", alertNumber=" + alertNumber +
                 ", newState='" + newState + '\'' +
                 ", reason='" + reason + '\'' +
+                ", destinationTopic='" + jobId + '\'' +
                 '}';
     }
 }
