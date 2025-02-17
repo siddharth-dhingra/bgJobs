@@ -1,0 +1,26 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3307/capstone
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: update-group
+      auto-offset-reset: earliest
+  
+app:
+  kafka:
+    topics:
+      jfc-bgjobs: jfc-bgjobs-topic
+      job-acknowledgement: job-acknowledgement-topic
+
+elasticsearch:
+  host: http://localhost:9200
