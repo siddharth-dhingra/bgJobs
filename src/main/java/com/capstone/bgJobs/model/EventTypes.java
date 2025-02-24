@@ -4,5 +4,6 @@ public enum EventTypes {
     SCAN_PULL,
     SCAN_PARSE,
     UPDATE_FINDING,
-    TICKETING
+    TICKETING_CREATE,
+    TICKETING_UPDATE,
 }

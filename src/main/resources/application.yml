@@ -19,7 +19,7 @@ spring:
 app:
   kafka:
     topics:
-      jfc-bgjobs: jfc-bgjobs-topic
+      jfc-bgjobs: jfc-bgjobs-topic1
       job-acknowledgement: job-acknowledgement-topic
 
 elasticsearch:

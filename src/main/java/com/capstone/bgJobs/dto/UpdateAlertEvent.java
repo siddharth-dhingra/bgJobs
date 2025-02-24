@@ -1,12 +1,13 @@
 package com.capstone.bgJobs.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.UUID;
 
 import com.capstone.bgJobs.model.Event;
 import com.capstone.bgJobs.model.EventTypes;
 import com.capstone.bgJobs.model.UpdateEvent;
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateAlertEvent implements Event<UpdateEvent> {
     
     private String eventId;

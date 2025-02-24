@@ -8,11 +8,15 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 
 import com.capstone.bgJobs.model.Finding;
+import com.capstone.bgJobs.model.Tenant;
 import com.capstone.bgJobs.model.ToolType;
+import com.capstone.bgJobs.repository.TenantRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +27,11 @@ public class ElasticsearchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchService.class);
     private final ElasticsearchClient esClient;
+    private final TenantRepository tenantRepository;
 
-    public ElasticsearchService(ElasticsearchClient esClient) {
+    public ElasticsearchService(ElasticsearchClient esClient, TenantRepository tenantRepository) {
         this.esClient = esClient;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -84,11 +90,41 @@ public class ElasticsearchService {
             System.out.println(docId);
             UpdateRequest<Map<String, Object>, Map<String, Object>> updateReq = UpdateRequest.of(u -> u
                     .index(esIndex)
-                    .id(toolType+docId)
+                    .id(docId)
                     .doc(partialDoc)
             );
             esClient.update(updateReq, Map.class);
             LOGGER.info("Updated document (id={}) in index {} with newStatus={}", docId, esIndex, newStatus);
+        }
+    }
+
+    private String getFindingsIndex(String tenantId) {
+        Tenant tenant = tenantRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new RuntimeException("Invalid tenantId: " + tenantId));
+        return tenant.getEsIndex();
+    }
+
+    public void updateFindingWithTicketId(String tenantId, String findingId, String ticketId) {
+        String indexName = getFindingsIndex(tenantId);
+
+        Finding findingUpdate = new Finding();
+        findingUpdate.setTicketId(ticketId);
+        findingUpdate.setUpdatedAt(LocalDateTime.now().toString());
+
+        System.out.println("Updating finding with ticket ID: " + ticketId);
+        System.out.println("Finding ID: " + findingId);
+        System.out.println("Index name: " + indexName);
+        
+        UpdateRequest<Finding, Finding> updateRequest = UpdateRequest.of(u -> u
+            .index(indexName)
+            .id(findingId)
+            .doc(findingUpdate)
+        );
+
+        try {
+            esClient.update(updateRequest, Finding.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update finding with ticket ID", e);
         }
     }
 }
