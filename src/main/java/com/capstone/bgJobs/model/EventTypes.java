@@ -6,4 +6,5 @@ public enum EventTypes {
     UPDATE_FINDING,
     TICKETING_CREATE,
     TICKETING_UPDATE,
+    RUNBOOK
 }

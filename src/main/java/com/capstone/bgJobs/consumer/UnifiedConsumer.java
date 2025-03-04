@@ -1,6 +1,7 @@
 package com.capstone.bgJobs.consumer;
 
 import com.capstone.bgJobs.handlers.CreateTicketEventHandler;
+import com.capstone.bgJobs.handlers.RunbookEventHandler;
 import com.capstone.bgJobs.handlers.UpdateAlertEventHandler;
 import com.capstone.bgJobs.handlers.UpdateTicketEventHandler;
 import com.capstone.bgJobs.model.EventTypes;
@@ -21,14 +22,16 @@ public class UnifiedConsumer {
     private final CreateTicketEventHandler createTicketEventHandler;
     private final UpdateAlertEventHandler updateAlertEventHandler;
     private final UpdateTicketEventHandler updateTicketEventHandler;
+    private final RunbookEventHandler runbookEventHandler;
 
     public UnifiedConsumer(
             CreateTicketEventHandler createTicketEventHandler,
             UpdateAlertEventHandler updateAlertEventHandler,
-            UpdateTicketEventHandler updateTicketEventHandler) {
+            UpdateTicketEventHandler updateTicketEventHandler, RunbookEventHandler runbookEventHandler) {
         this.createTicketEventHandler = createTicketEventHandler;
         this.updateAlertEventHandler = updateAlertEventHandler;
         this.updateTicketEventHandler = updateTicketEventHandler;
+        this.runbookEventHandler = runbookEventHandler;
     }
 
     @KafkaListener(
@@ -53,6 +56,9 @@ public class UnifiedConsumer {
                     break;
                 case TICKETING_UPDATE:
                     updateTicketEventHandler.handle(message);
+                    break;
+                case RUNBOOK:
+                    runbookEventHandler.handle(message);
                     break;
                 default:
                     LOGGER.warn("Unknown event type: {}", eventType);

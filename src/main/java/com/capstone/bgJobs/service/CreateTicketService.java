@@ -60,6 +60,15 @@ public class CreateTicketService {
      * Creates a Jira ticket for a given finding.
      */
     public String handleCreateTicketEvent(String tenantId, String findingId, String summary, String description, String jobId) {
+
+        Optional<TenantTicket> existingTicket = tenantTicketRepository.findByEsFindingId(findingId);
+        if (existingTicket.isPresent()) {
+            String existingTicketId = existingTicket.get().getTicketId();
+            LOGGER.info("Ticket already exists for finding id {}: returning existing ticket id {}", findingId, existingTicketId);
+            sendAcknowledgement(jobId, AcknowledgementStatus.SUCCESS);
+            return existingTicketId;
+        }
+
         Tenant tenant = tenantRepository.findByTenantId(tenantId)
                 .orElseThrow(() -> new RuntimeException("Invalid tenantId: " + tenantId));
 

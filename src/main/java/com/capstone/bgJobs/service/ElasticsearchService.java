@@ -1,11 +1,14 @@
 package com.capstone.bgJobs.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.GetRequest;
+import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 
 import com.capstone.bgJobs.model.Finding;
 import com.capstone.bgJobs.model.Tenant;
@@ -127,4 +130,40 @@ public class ElasticsearchService {
             throw new RuntimeException("Failed to update finding with ticket ID", e);
         }
     }
+
+    public Finding getFindingByAlertNumber(String esIndex, ToolType toolType, long alertNumber) {
+        try {
+            SearchResponse<Finding> response = esClient.search(s -> s
+                .index(esIndex)
+                .query(q -> q.bool(b -> b
+                    .must(m -> m.match(t -> t.field("additionalData.number").query(String.valueOf(alertNumber))))
+                    .must(m -> m.match(t -> t.field("toolType").query(toolType.name())))
+                )), Finding.class);
+            if (response.hits().hits().size() > 0) {
+                Hit<Finding> hit = response.hits().hits().get(0);
+                return hit.source();
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error fetching finding by alert number", e);
+        }
+    }
+
+    public Finding getFindingById(String tenantId, String findingId) {
+        String indexName = getFindingsIndex(tenantId);
+        try {
+            GetRequest getRequest = GetRequest.of(r -> r.index(indexName).id(findingId));
+            GetResponse<Finding> getResponse = esClient.get(getRequest, Finding.class);
+            if (getResponse.found()) {
+                return getResponse.source();
+            } else {
+                LOGGER.warn("No Finding document found in index {} for findingId={}", indexName, findingId);
+                return null;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error retrieving finding by id: " + findingId, e);
+        }
+    }
+
 }
